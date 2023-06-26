@@ -40,7 +40,7 @@ P.S. You can delete this when you're done too. It's your config now :)
 --  NOTE: Must happen before plugins are required (otherwise wrong leader will be used)
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
-
+vim.opt.termguicolors = true
 -- Install package manager
 --    https://github.com/folke/lazy.nvim
 --    `:help lazy.nvim.txt` for more info
@@ -84,13 +84,22 @@ require('lazy').setup({
 
       -- Useful status updates for LSP
       -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
-      { 'j-hui/fidget.nvim', opts = {} },
+      { 'j-hui/fidget.nvim',tag='legacy', opts = {} },
 
       -- Additional lua configuration, makes nvim stuff amazing!
       'folke/neodev.nvim',
     },
   },
-
+  {
+    "kylechui/nvim-surround",
+    version = "*", -- Use for stability; omit to use `main` branch for the latest features
+    event = "VeryLazy",
+    config = function()
+        require("nvim-surround").setup({
+            -- Configuration here, or leave empty to use defaults
+        })
+    end
+  },
   {
     -- Autocompletion
     'hrsh7th/nvim-cmp',
@@ -106,7 +115,11 @@ require('lazy').setup({
       'rafamadriz/friendly-snippets',
     },
   },
-
+  {
+    "cbochs/portal.nvim",
+    opts ={}
+      -- Optional dependencies
+  },
   -- Useful plugin to show you pending keybinds.
   { 'folke/which-key.nvim', opts = {} },
   {
@@ -128,7 +141,8 @@ require('lazy').setup({
       end,
     },
   },
-
+  --terminal plugin for neovm
+  {'akinsho/toggleterm.nvim', version = "*", config = true},
   {
     -- Theme inspired by Atom
     'navarasu/onedark.nvim',
@@ -181,7 +195,43 @@ require('lazy').setup({
       return vim.fn.executable 'make' == 1
     end,
   },
-
+  {
+      "nvim-telescope/telescope-file-browser.nvim",
+      dependencies = { "nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim" }
+  },
+  {
+  "folke/flash.nvim",
+  event = "VeryLazy",
+  ---@type Flash.Config
+  opts = {},
+  keys = {
+    {
+      "s",
+      mode = { "n", "x", "o" },
+      function()
+        -- default options: exact mode, multi window, all directions, with a backdrop
+        require("flash").jump()
+      end,
+      desc = "Flash",
+    },
+    {
+      "S",
+      mode = { "n", "o", "x" },
+      function()
+        require("flash").treesitter()
+      end,
+      desc = "Flash Treesitter",
+    },
+    {
+      "r",
+      mode = "o",
+      function()
+        require("flash").remote()
+      end,
+      desc = "Remote Flash",
+    },
+  },
+},
   {
     -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
@@ -190,7 +240,27 @@ require('lazy').setup({
     },
     build = ':TSUpdate',
   },
-
+  {
+    'akinsho/bufferline.nvim',
+    version = "*",
+    dependencies = 'nvim-tree/nvim-web-devicons',
+    opts={}
+  },
+  {
+    "folke/noice.nvim",
+    event = "VeryLazy",
+    opts = {
+      -- add any options here
+    },
+    dependencies = {
+      -- if you lazy-load any plugin below, make sure to add proper `module="..."` entries
+      "MunifTanjim/nui.nvim",
+      -- OPTIONAL:
+      --   `nvim-notify` is only needed, if you want to use the notification view.
+      --   If not available, we use `mini` as the fallback
+      "rcarriga/nvim-notify",
+     }
+  },
   -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
   --       These are some example plugins that I've included in the kickstart repository.
   --       Uncomment any of the lines below to enable them.
@@ -208,7 +278,7 @@ require('lazy').setup({
 -- [[ Setting options ]]
 -- See `:help vim.o`
 -- NOTE: You can change these options as you wish!
-
+vim.loader.enable()
 -- Set highlight on search
 vim.o.hlsearch = false
 
@@ -218,9 +288,25 @@ vim.wo.number = true
 -- Enable mouse mode
 vim.o.mouse = 'a'
 
+-- Enable relative line numbers
+vim.o.relativenumber = true
+
 -- Sync clipboard between OS and Neovim.
 --  Remove this option if you want your OS clipboard to remain independent.
 --  See `:help 'clipboard'`
+vim.g.clipboard = {
+  name = 'win32yank',
+  copy = {
+     ["+"] = 'win32yank.exe -i --crlf',
+     ["*"] = 'win32yank.exe -i --crlf',
+   },
+  paste = {
+     ["+"] = 'win32yank.exe -o --lf',
+     ["*"] = 'win32yank.exe -o --lf',
+  },
+  cache_enabled = 0,
+}
+
 vim.o.clipboard = 'unnamedplus'
 
 -- Enable break indent
@@ -250,13 +336,22 @@ vim.o.termguicolors = true
 -- [[ Basic Keymaps ]]
 
 -- Keymaps for better default experience
--- See `:help vim.keymap.set()`
+-- See `:help vim.keymap.set()
+vim.keymap.set('n', '<leader>d','"_d')
 vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
 
 -- Remap for dealing with word wrap
 vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 
+-- [[Basic Vim Remaps]]
+-- Remap for creating two newlines and insert
+vim.keymap.set('n','<leader>o','o<Esc>o',{silent=true})
+vim.keymap.set('n','<leader>O','O<Esc>O',{silent=true})
+
+-- portal.nvim go back and forwards
+vim.keymap.set("n", "<leader>jb", "<cmd>Portal jumplist backward<cr>")
+vim.keymap.set("n", "<leader>jf", "<cmd>Portal jumplist forward<cr>")
 -- [[ Highlight on yank ]]
 -- See `:help vim.highlight.on_yank()`
 local highlight_group = vim.api.nvim_create_augroup('YankHighlight', { clear = true })
@@ -280,9 +375,48 @@ require('telescope').setup {
     },
   },
 }
+require('toggleterm').setup{
+	size = 15,
+	open_mapping = [[<C-\>]],
+	hide_numbers = true,
+	shade_filetypes = {},
+	shade_terminals = true,
+	shading_factor = 2,
+	start_in_insert = true,
+	insert_mappings = true,
+  terminal_mappings = true,
+	persist_size = true,
+	direction = "horizontal",
+	close_on_exit = true,
+	shell = vim.o.shell,
+	float_opts = {
+		border = "curved",
+		winblend = 0,
+		highlights = {
+			border = "Normal",
+			background = "Normal",
+		},
+	},
+}
+
+function _G.set_terminal_keymaps()
+  local opts = {buffer = 0}
+  vim.keymap.set('t', '<esc>', [[<C-\><C-n>]], opts)
+  vim.keymap.set('t', 'jk', [[<C-\><C-n>]], opts)
+  vim.keymap.set('t', '<C-h>', [[<Cmd>wincmd h<CR>]], opts)
+  vim.keymap.set('t', '<C-j>',[[<Cmd>wincmd j<CR>]], opts)
+  vim.keymap.set('t', '<C-k>',[[<Cmd>wincmd k<CR>]], opts)
+  vim.keymap.set('t', '<C-l>', [[<Cmd>wincmd l<CR>]], opts)
+  vim.keymap.set('t', '<C-w>', [[<C-\><C-n><C-w>]], opts)
+end
+-- if you only want these mappings for toggle term use term://*toggleterm#* instead
+vim.cmd('autocmd! TermOpen term://*toggleterm#* lua set_terminal_keymaps()')
 
 -- Enable telescope fzf native, if installed
 pcall(require('telescope').load_extension, 'fzf')
+
+-- Enable telescope file_broswer, if installed 
+pcall(require('telescope').load_extension, 'file_browser')
 
 -- See `:help telescope.builtin`
 vim.keymap.set('n', '<leader>?', require('telescope.builtin').oldfiles, { desc = '[?] Find recently opened files' })
@@ -295,6 +429,7 @@ vim.keymap.set('n', '<leader>/', function()
   })
 end, { desc = '[/] Fuzzily search in current buffer' })
 
+vim.keymap.set('n','<leader>fb',require('telescope').extensions.file_browser.file_browser)
 vim.keymap.set('n', '<leader>gf', require('telescope.builtin').git_files, { desc = 'Search [G]it [F]iles' })
 vim.keymap.set('n', '<leader>sf', require('telescope.builtin').find_files, { desc = '[S]earch [F]iles' })
 vim.keymap.set('n', '<leader>sh', require('telescope.builtin').help_tags, { desc = '[S]earch [H]elp' })
@@ -302,6 +437,24 @@ vim.keymap.set('n', '<leader>sw', require('telescope.builtin').grep_string, { de
 vim.keymap.set('n', '<leader>sg', require('telescope.builtin').live_grep, { desc = '[S]earch by [G]rep' })
 vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { desc = '[S]earch [D]iagnostics' })
 
+require("noice").setup({
+  lsp = {
+    -- override markdown rendering so that **cmp** and other plugins use **Treesitter**
+    override = {
+      ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
+      ["vim.lsp.util.stylize_markdown"] = true,
+      ["cmp.entry.get_documentation"] = true,
+    },
+  },
+  -- you can enable a preset for easier configuration
+  presets = {
+    bottom_search = true, -- use a classic bottom cmdline for search
+    command_palette = true, -- position the cmdline and popupmenu together
+    long_message_to_split = true, -- long messages will be sent to a split
+    inc_rename = false, -- enables an input dialog for inc-rename.nvim
+    lsp_doc_border = false, -- add a border to hover docs and signature help
+  },
+})
 -- [[ Configure Treesitter ]]
 -- See `:help nvim-treesitter`
 require('nvim-treesitter.configs').setup {
@@ -428,9 +581,10 @@ local servers = {
   -- clangd = {},
   -- gopls = {},
   -- pyright = {},
-  -- rust_analyzer = {},
+  rust_analyzer = {},
   -- tsserver = {},
 
+  omnisharp = {},
   lua_ls = {
     Lua = {
       workspace = { checkThirdParty = false },
@@ -511,5 +665,24 @@ cmp.setup {
   },
 }
 
+vim.api.nvim_create_autocmd("LspAttach", {
+  callback = function(ev)
+    local client = vim.lsp.get_client_by_id(ev.data.client_id)
+    local function toSnakeCase(str)
+      return string.gsub(str, "%s*[- ]%s*", "_")
+    end
+
+    if client.name == 'omnisharp' then
+      local tokenModifiers = client.server_capabilities.semanticTokensProvider.legend.tokenModifiers
+      for i, v in ipairs(tokenModifiers) do
+        tokenModifiers[i] = toSnakeCase(v)
+      end
+      local tokenTypes = client.server_capabilities.semanticTokensProvider.legend.tokenTypes
+      for i, v in ipairs(tokenTypes) do
+        tokenTypes[i] = toSnakeCase(v)
+      end
+    end
+  end,
+})
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
