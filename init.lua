@@ -100,6 +100,7 @@ require('lazy').setup({
         })
     end
   },
+
   {
     -- Autocompletion
     'hrsh7th/nvim-cmp',
@@ -158,10 +159,13 @@ require('lazy').setup({
     -- See `:help lualine.txt`
     opts = {
       options = {
-        icons_enabled = false,
+        icons_enabled = true,
         theme = 'onedark',
         component_separators = '|',
         section_separators = '',
+      },
+      sections = {
+        lualine_c = {'buffers'},
       },
     },
   },
@@ -183,6 +187,14 @@ require('lazy').setup({
   -- Fuzzy Finder (files, lsp, etc)
   { 'nvim-telescope/telescope.nvim', branch = '0.1.x', dependencies = { 'nvim-lua/plenary.nvim' } },
 
+  {"anuvyklack/windows.nvim",
+    dependencies = { "anuvyklack/middleclass"},
+    config = function()
+        require("windows").setup({
+            -- Configuration here, or leave empty to use defaults
+        })
+    end
+  },
   -- Fuzzy Finder Algorithm which requires local dependencies to be built.
   -- Only load if `make` is available. Make sure you have the system
   -- requirements installed.
@@ -241,12 +253,6 @@ require('lazy').setup({
     build = ':TSUpdate',
   },
   {
-    'akinsho/bufferline.nvim',
-    version = "*",
-    dependencies = 'nvim-tree/nvim-web-devicons',
-    opts={}
-  },
-  {
     "folke/noice.nvim",
     event = "VeryLazy",
     opts = {
@@ -294,20 +300,9 @@ vim.o.relativenumber = true
 -- Sync clipboard between OS and Neovim.
 --  Remove this option if you want your OS clipboard to remain independent.
 --  See `:help 'clipboard'`
-vim.g.clipboard = {
-  name = 'win32yank',
-  copy = {
-     ["+"] = 'win32yank.exe -i --crlf',
-     ["*"] = 'win32yank.exe -i --crlf',
-   },
-  paste = {
-     ["+"] = 'win32yank.exe -o --lf',
-     ["*"] = 'win32yank.exe -o --lf',
-  },
-  cache_enabled = 0,
-}
 
 vim.o.clipboard = 'unnamedplus'
+
 
 -- Enable break indent
 vim.o.breakindent = true
@@ -376,7 +371,7 @@ require('telescope').setup {
   },
 }
 require('toggleterm').setup{
-	size = 15,
+	size =40,
 	open_mapping = [[<C-\>]],
 	hide_numbers = true,
 	shade_filetypes = {},
@@ -386,7 +381,7 @@ require('toggleterm').setup{
 	insert_mappings = true,
   terminal_mappings = true,
 	persist_size = true,
-	direction = "horizontal",
+	direction = "vertical",
 	close_on_exit = true,
 	shell = vim.o.shell,
 	float_opts = {
@@ -412,6 +407,12 @@ end
 -- if you only want these mappings for toggle term use term://*toggleterm#* instead
 vim.cmd('autocmd! TermOpen term://*toggleterm#* lua set_terminal_keymaps()')
 
+-- windows switching keymaps
+-- See `:help vim.keymap.set()
+vim.keymap.set('n', '<C-l>','<C-w><C-l>')
+vim.keymap.set('n', '<C-k>','<C-w><C-k>')
+vim.keymap.set('n', '<C-j>','<C-w><C-j>')
+vim.keymap.set('n', '<C-h>','<C-w><C-l>')
 -- Enable telescope fzf native, if installed
 pcall(require('telescope').load_extension, 'fzf')
 
@@ -459,7 +460,7 @@ require("noice").setup({
 -- See `:help nvim-treesitter`
 require('nvim-treesitter.configs').setup {
   -- Add languages to be installed here that you want installed for treesitter
-  ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'typescript', 'vimdoc', 'vim' },
+  ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'typescript', 'vimdoc', 'vim', 'c_sharp' },
 
   -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
   auto_install = false,
@@ -592,6 +593,10 @@ local servers = {
     },
   },
 }
+require('onedark').setup {
+    style = 'darker'
+}
+require('onedark').load()
 
 -- Setup neovim lua configuration
 require('neodev').setup()
