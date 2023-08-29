@@ -150,6 +150,7 @@ require('lazy').setup({
         vim.keymap.set('n', '<leader>gp', require('gitsigns').prev_hunk, { buffer = bufnr, desc = '[G]o to [P]revious Hunk' })
         vim.keymap.set('n', '<leader>gn', require('gitsigns').next_hunk, { buffer = bufnr, desc = '[G]o to [N]ext Hunk' })
         vim.keymap.set('n', '<leader>ph', require('gitsigns').preview_hunk, { buffer = bufnr, desc = '[P]review [H]unk' })
+        vim.keymap.set('n', '<leader>ah', require('gitsigns').stage_hunk, { buffer = bufnr, desc = '[A]dd [H]unk' })
       end,
     },
   },
@@ -408,7 +409,9 @@ vim.keymap.set('n', '<C-d>', '<C-d>zz', { desc = 'Go down 20 lines and center'})
 vim.keymap.set('n', '<C-u>', '<C-u>zz', { desc = 'Go up 20 lines and center'})
 
 
-
+-- keymaps to swap text-obejcts
+vim.keymap.set('n', '<leader>sl', require('sibling-swap').swap_with_left, { desc = '[S]wap [L]eft'})
+vim.keymap.set('n', '<leader>sr', require('sibling-swap').swap_with_right, { desc = '[S]wap [R]ight'})
 
 -- windows switching keymaps
 -- See `:help vim.keymap.set()
