@@ -124,6 +124,14 @@ require('lazy').setup({
     opts ={}
       -- Optional dependencies
   },
+  {
+    'windwp/nvim-autopairs',
+    event = "InsertEnter",
+    opts = {} -- this is equalent to setup({}) function
+  },
+  {
+  'Wansmer/sibling-swap.nvim'
+  },
   -- Useful plugin to show you pending keybinds.
   { 'folke/which-key.nvim', opts = {} },
   {
