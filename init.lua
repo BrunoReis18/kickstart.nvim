@@ -403,6 +403,9 @@ require('telescope').setup {
   },
 }
 
+-- keymaps to go down and up 18 lines while centering
+vim.keymap.set('n', '<C-d>', '<C-d>zz', { desc = 'Go down 20 lines and center'})
+vim.keymap.set('n', '<C-u>', '<C-u>zz', { desc = 'Go up 20 lines and center'})
 
 
 
